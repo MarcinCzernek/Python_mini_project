@@ -1,5 +1,4 @@
 import datetime
-import pickle
 import time
 
 import contactControl
@@ -8,7 +7,7 @@ from verify_email import verify_email
 class ConsoleInputControl:
     "Ta statyczna klasa zarządza wejściem"
     contactControl = None
-    file = "address.dat"
+    file = "file.txt"
 
 
     def __init__(self):
@@ -35,8 +34,9 @@ class ConsoleInputControl:
     def message(self, text, end="\n"):
         print(f">>>{text}",end=end)
 
+    #Weryfikuje email
     def __verifyEmail(self):
-      self.message("Adres email:",end="")
+      self.message("Email address:",end="")
       mail = input()
       if mail in["", None]:
           self.message("Please enter email address")
@@ -53,9 +53,14 @@ class ConsoleInputControl:
         print(f"Today is {x}")
         time.sleep(4)
 
-#nauka wymaga spokoju, koncentracji, zaangażowania, ćwiczenia tego, czego się uczy.
+    def __load_data3(self,file):
+        try:
+            with open(self.file, encoding='utf-8') as file:
+                print(file.read())
+        except FileNotFoundError:
+            print("That file was not found")
 
-
+    #Usuwanie kontaktu z listy kontaktów.
     def __deleteContactFromContacts(self):
         name, address, email, phone = self.__getContactFromUser()
         if self.contactControl.deleteContact(
@@ -65,7 +70,7 @@ class ConsoleInputControl:
             print("Failed to find contact, please try again")
 
 
-
+    #Tworzenie operacji wyszukiwania według konkretnej informacji w kontakcie (np. po nazwie kontaktu lub adresie)
     def __createSearch(self):
         done = False
         name = ""
@@ -103,7 +108,8 @@ class ConsoleInputControl:
             done = input() == "n"
         self.contactControl.searchContacts(name, address, email, phone)
 
-    def __parse(self, respond, file="address.dat"):
+    #zarządzanie odpowiedziami uzytkownika
+    def __parse(self, respond, file="file.txt"):
         if respond.lower() == "list":
             self.contactControl.listContacts()
             return True
@@ -124,10 +130,10 @@ class ConsoleInputControl:
             self.__verifyEmail()
             return True
         if respond.lower() == "save":
-            self.contactControl.save_data(file)
+            self.contactControl.save_data()
             return True
         if respond.lower() == "load":
-            self.contactControl.load_date(file)
+            self.contactControl.load_data()
             return True
         if respond.lower() == "time":
             self.__seeDate()
@@ -139,14 +145,15 @@ class ConsoleInputControl:
 #Funkcja z menu głównym aplikacji
     def run(self):
         running = True
-        welcome = "Welcome user to your favorite address book!"
-        mainMenu = """What do you want to do?
+        welcome = "Welcome to your favorite address book"
+        mainMenu = """What do you want to do? Type command.
+        ---------------------------------------
         | List        | Lists all users
         | Add         | Adds an user
         | Delete      | Deletes an user
         | Delete all  | Removes all users
         | Search      | Search or a user
-        | Verify      | Check if email from contact is true
+        | Verify      | Verify email address
         | Save        | Save information to file
         | Load        | Load information from file
         | Time        | View actual date and time
